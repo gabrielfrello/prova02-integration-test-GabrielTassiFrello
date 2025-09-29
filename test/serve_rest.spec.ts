@@ -284,5 +284,4 @@ describe('Validação da JokeAPI', () => {
     it('retorna erro para versão de formato inválida', async () => {
       await api
         .spec()
-        .post(`${API_BASE}/submit`)
-        .with
+        .
