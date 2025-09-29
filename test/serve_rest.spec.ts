@@ -3,38 +3,35 @@ import { SimpleReporter } from '../simple-reporter';
 import { StatusCodes } from 'http-status-codes';
 import { faker } from '@faker-js/faker';
 
-describe('JokeAPI Tests', () => {
-  const p = pactum;
-  const rep = SimpleReporter;
-  const baseUrl = 'https://v2.jokeapi.dev';
+describe('Validação da JokeAPI', () => {
+  const api = pactum;
+  const reporter = SimpleReporter;
+  const API_BASE = 'https://v2.jokeapi.dev';
 
-  p.request.setDefaultTimeout(60000);
+  api.request.setDefaultTimeout(60000);
 
   beforeAll(() => {
-    p.reporter.add(rep);
+    api.reporter.add(reporter);
   });
 
   afterAll(() => {
-    p.reporter.end();
+    api.reporter.end();
   });
 
-  describe('System Endpoints', () => {
-    it('deve responder ao ping com sucesso', async () => {
-      await p
+  describe('Verificações de Sistema', () => {
+    it('responde ao ping corretamente', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/ping`)
+        .get(`${API_BASE}/ping`)
         .expectStatus(StatusCodes.OK)
-        .expectJsonLike({
-          error: false,
-          ping: 'Pong!'
-        })
+        .expectJsonLike({ error: false, ping: 'Pong!' })
         .expectHeaderContains('content-type', 'application/json');
     });
 
-    it('deve retornar informações da API', async () => {
-      await p
+    it('retorna dados gerais da API', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/info`)
+        .get(`${API_BASE}/info`)
         .expectStatus(StatusCodes.OK)
         .expectBodyContains('version')
         .expectBodyContains('jokes')
@@ -50,226 +47,173 @@ describe('JokeAPI Tests', () => {
         });
     });
 
-    it('deve retornar categorias disponíveis', async () => {
-      await p
+    it('lista categorias disponíveis', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/categories`)
+        .get(`${API_BASE}/categories`)
         .expectStatus(StatusCodes.OK)
         .expectBodyContains('categories')
         .expectBodyContains('categoryAliases')
-        .expectJsonLike({
-          error: false
-        });
+        .expectJsonLike({ error: false });
     });
 
-    it('deve retornar flags disponíveis', async () => {
-      await p
+    it('lista flags disponíveis', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/flags`)
+        .get(`${API_BASE}/flags`)
         .expectStatus(StatusCodes.OK)
         .expectBodyContains('flags')
-        .expectJsonLike({
-          error: false
-        });
+        .expectJsonLike({ error: false });
     });
 
-    it('deve retornar formatos disponíveis', async () => {
-      await p
+    it('informa os formatos aceitos', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/formats`)
+        .get(`${API_BASE}/formats`)
         .expectStatus(StatusCodes.OK)
         .expectBodyContains('formats')
-        .expectJsonLike({
-          error: false
-        });
+        .expectJsonLike({ error: false });
     });
 
-    it('deve retornar lista de endpoints', async () => {
-      await p
+    it('retorna os endpoints disponíveis', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/endpoints`)
+        .get(`${API_BASE}/endpoints`)
         .expectStatus(StatusCodes.OK)
-        .expectJsonSchema({
-          type: 'array'
-        });
+        .expectJsonSchema({ type: 'array' });
     });
 
-    it('deve retornar idiomas suportados', async () => {
-      await p
+    it('informa os idiomas suportados', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/languages`)
+        .get(`${API_BASE}/languages`)
         .expectStatus(StatusCodes.OK)
         .expectBodyContains('jokeLanguages')
         .expectBodyContains('systemLanguages');
     });
 
-    it('deve retornar código de idioma para português', async () => {
-      await p
+    it('retorna código de idioma para português', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/langcode/portuguese`)
+        .get(`${API_BASE}/langcode/portuguese`)
         .expectStatus(StatusCodes.OK)
         .expectBodyContains('code')
-        .expectJsonLike({
-          error: false,
-          code: 'pt'
-        });
+        .expectJsonLike({ error: false, code: 'pt' });
     });
 
-    it('deve retornar código de idioma para inglês', async () => {
-      await p
+    it('retorna código de idioma para inglês', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/langcode/english`)
+        .get(`${API_BASE}/langcode/english`)
         .expectStatus(StatusCodes.OK)
         .expectBodyContains('code')
-        .expectJsonLike({
-          error: false,
-          code: 'en'
-        });
+        .expectJsonLike({ error: false, code: 'en' });
     });
   });
 
-  describe('Joke Endpoints', () => {
-    it('deve retornar piada de qualquer categoria', async () => {
-      await p
+  describe('Testes de Piadas', () => {
+    it('traz piada de qualquer categoria', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/joke/Any`)
+        .get(`${API_BASE}/joke/Any`)
         .expectStatus(StatusCodes.OK)
-        .expectJsonLike({
-          error: false
-        })
+        .expectJsonLike({ error: false })
         .expectResponseTime(5000);
     });
 
-    it('deve retornar piada de programação', async () => {
-      await p
+    it('traz piada da categoria Programming', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/joke/Programming`)
+        .get(`${API_BASE}/joke/Programming`)
         .expectStatus(StatusCodes.OK)
-        .expectJsonLike({
-          error: false,
-          category: 'Programming'
-        });
+        .expectJsonLike({ error: false, category: 'Programming' });
     });
 
-    it('deve retornar piada sombria', async () => {
-      await p
+    it('traz piada da categoria Dark', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/joke/Dark`)
+        .get(`${API_BASE}/joke/Dark`)
         .expectStatus(StatusCodes.OK)
-        .expectJsonLike({
-          error: false,
-          category: 'Dark'
-        });
+        .expectJsonLike({ error: false, category: 'Dark' });
     });
 
-    it('deve retornar múltiplas piadas', async () => {
-      await p
+    it('traz múltiplas piadas', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/joke/Any`)
-        .withQueryParams({
-          amount: 3
-        })
+        .get(`${API_BASE}/joke/Any`)
+        .withQueryParams({ amount: 3 })
         .expectStatus(StatusCodes.OK)
-        .expectJsonLike({
-          error: false,
-          amount: 3
-        });
+        .expectJsonLike({ error: false, amount: 3 });
     });
 
-    it('deve retornar piadas em formato específico', async () => {
-      await p
+    it('traz piadas em formato JSON', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/joke/Any`)
-        .withQueryParams({
-          format: 'json'
-        })
+        .get(`${API_BASE}/joke/Any`)
+        .withQueryParams({ format: 'json' })
         .expectStatus(StatusCodes.OK)
         .expectHeaderContains('content-type', 'application/json');
     });
 
-    it('deve retornar piada com filtro de tipo single', async () => {
-      await p
+    it('filtra piada do tipo single', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/joke/Any`)
-        .withQueryParams({
-          type: 'single'
-        })
+        .get(`${API_BASE}/joke/Any`)
+        .withQueryParams({ type: 'single' })
         .expectStatus(StatusCodes.OK)
-        .expectJsonLike({
-          error: false,
-          type: 'single'
-        });
+        .expectJsonLike({ error: false, type: 'single' });
     });
 
-    it('deve retornar piada com filtro de tipo twopart', async () => {
-      await p
+    it('filtra piada do tipo twopart', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/joke/Any`)
-        .withQueryParams({
-          type: 'twopart'
-        })
+        .get(`${API_BASE}/joke/Any`)
+        .withQueryParams({ type: 'twopart' })
         .expectStatus(StatusCodes.OK)
-        .expectJsonLike({
-          error: false,
-          type: 'twopart'
-        });
+        .expectJsonLike({ error: false, type: 'twopart' });
     });
 
-    it('deve retornar piada com blacklist flags', async () => {
-      await p
+    it('filtra piadas com blacklist', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/joke/Any`)
-        .withQueryParams({
-          blacklistFlags: 'nsfw,racist'
-        })
+        .get(`${API_BASE}/joke/Any`)
+        .withQueryParams({ blacklistFlags: 'nsfw,racist' })
         .expectStatus(StatusCodes.OK)
-        .expectJsonLike({
-          error: false
-        });
+        .expectJsonLike({ error: false });
     });
 
-    it('deve retornar piada contendo palavra específica', async () => {
-      await p
+    it('filtra piadas por palavra-chave', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/joke/Programming`)
-        .withQueryParams({
-          contains: 'code'
-        })
+        .get(`${API_BASE}/joke/Programming`)
+        .withQueryParams({ contains: 'code' })
         .expectStatus(StatusCodes.OK);
     });
 
-    it('deve retornar erro para categoria inválida', async () => {
-      await p
+    it('retorna erro para categoria inválida', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/joke/InvalidCategory`)
+        .get(`${API_BASE}/joke/InvalidCategory`)
         .expectStatus(StatusCodes.BAD_REQUEST)
-        .expectJsonLike({
-          error: true
-        });
+        .expectJsonLike({ error: true });
     });
 
-    it('deve retornar erro para ID range inválido', async () => {
-      await p
+    it('retorna erro para faixa de ID inválida', async () => {
+      await api
         .spec()
-        .get(`${baseUrl}/joke/Any`)
-        .withQueryParams({
-          idRange: '999999-999999'
-        })
+        .get(`${API_BASE}/joke/Any`)
+        .withQueryParams({ idRange: '999999-999999' })
         .expectStatus(StatusCodes.BAD_REQUEST)
-        .expectJsonLike({
-          error: true
-        });
+        .expectJsonLike({ error: true });
     });
   });
 
-  describe('Submit Joke Endpoint', () => {
-    it('deve testar submissão de piada com dry-run', async () => {
-      await p
+  describe('Envio de Piadas', () => {
+    it('envia piada tipo single com dry-run', async () => {
+      await api
         .spec()
-        .post(`${baseUrl}/submit`)
-        .withQueryParams({
-          'dry-run': true
-        })
+        .post(`${API_BASE}/submit`)
+        .withQueryParams({ 'dry-run': true })
         .withJson({
           formatVersion: 3,
           category: 'Misc',
@@ -286,18 +230,14 @@ describe('JokeAPI Tests', () => {
           lang: 'en'
         })
         .expectStatus(StatusCodes.CREATED)
-        .expectJsonLike({
-          error: false
-        });
+        .expectJsonLike({ error: false });
     });
 
-    it('deve testar submissão de piada twopart com dry-run', async () => {
-      await p
+    it('envia piada tipo twopart com dry-run', async () => {
+      await api
         .spec()
-        .post(`${baseUrl}/submit`)
-        .withQueryParams({
-          'dry-run': true
-        })
+        .post(`${API_BASE}/submit`)
+        .withQueryParams({ 'dry-run': true })
         .withJson({
           formatVersion: 3,
           category: 'Programming',
@@ -315,18 +255,14 @@ describe('JokeAPI Tests', () => {
           lang: 'en'
         })
         .expectStatus(StatusCodes.CREATED)
-        .expectJsonLike({
-          error: false
-        });
+        .expectJsonLike({ error: false });
     });
 
-    it('deve retornar erro para submissão inválida', async () => {
-      await p
+    it('retorna erro ao enviar piada inválida', async () => {
+      await api
         .spec()
-        .post(`${baseUrl}/submit`)
-        .withQueryParams({
-          'dry-run': true
-        })
+        .post(`${API_BASE}/submit`)
+        .withQueryParams({ 'dry-run': true })
         .withJson({
           formatVersion: 3,
           category: 'InvalidCategory',
@@ -345,29 +281,8 @@ describe('JokeAPI Tests', () => {
         .expectStatus(StatusCodes.BAD_REQUEST);
     });
 
-    it('deve retornar erro para formato de versão inválido', async () => {
-      await p
+    it('retorna erro para versão de formato inválida', async () => {
+      await api
         .spec()
-        .post(`${baseUrl}/submit`)
-        .withQueryParams({
-          'dry-run': true
-        })
-        .withJson({
-          formatVersion: 1,
-          category: 'Misc',
-          type: 'single',
-          joke: faker.lorem.sentence(),
-          flags: {
-            nsfw: false,
-            religious: false,
-            political: false,
-            racist: false,
-            sexist: false,
-            explicit: false
-          },
-          lang: 'en'
-        })
-        .expectStatus(StatusCodes.BAD_REQUEST);
-    });
-  });
-});
+        .post(`${API_BASE}/submit`)
+        .with
